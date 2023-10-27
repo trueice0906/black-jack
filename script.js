@@ -2,6 +2,13 @@
 var playerCards = [];
 var computerCards = [];
 var myOutputValue = ``;
+var cardCounter = 0;
+var convert = {
+  1: "Ace",
+  11: "Jack",
+  12: "Queen",
+  13: "King",
+};
 
 //Helper Functions
 // Randomizing function ranging from 0 to max
@@ -13,20 +20,12 @@ var getRandomIndex = function (max) {
 var makeDeck = function () {
   var cardDeck = [];
   var suits = ["Spades", "Hearts", "Clubs", "Diamonds"];
-  var suitIndex = 0;
-  while (suitIndex < suits.length) {
+  for (var suitIndex = 0; suitIndex < suits.length; suitIndex++) {
     var currentSuit = suits[suitIndex];
-    var rankCounter = 1;
-    while (rankCounter <= 13) {
+    for (var rankCounter = 1; rankCounter <= 13; rankCounter++) {
       var cardName = rankCounter;
-      if (cardName == 1) {
-        cardName = "Ace";
-      } else if (cardName == 11) {
-        cardName = "Jack";
-      } else if (cardName == 12) {
-        cardName = "Queen";
-      } else if (cardName == 13) {
-        cardName = "King";
+      if (convert[rankCounter] != null) {
+        cardName = convert[rankCounter];
       }
       var card = {
         name: cardName,
@@ -34,23 +33,39 @@ var makeDeck = function () {
         rank: rankCounter,
       };
       cardDeck.push(card);
-      rankCounter += 1;
     }
-    suitIndex += 1;
   }
+  console.log(cardDeck);
+  return cardDeck;
+};
+var shuffleCards = function (cardDeck) {
+  // Loop over the card deck array once
+  var currentIndex = 0;
+  while (currentIndex < cardDeck.length) {
+    // Select a random index in the deck
+    var randomIndex = getRandomIndex(cardDeck.length);
+    // Select the card that corresponds to randomIndex
+    var randomCard = cardDeck[randomIndex];
+    // Select the card that corresponds to currentIndex
+    var currentCard = cardDeck[currentIndex];
+    // Swap positions of randomCard and currentCard in the deck
+    cardDeck[currentIndex] = randomCard;
+    cardDeck[randomIndex] = currentCard;
+    // Increment currentIndex
+    currentIndex = currentIndex + 1;
+  }
+  // Return the shuffled deck
   return cardDeck;
 };
 
 // Randomizing the elements in the cardDeck array
 var shuffleCards = function (cardDeck) {
-  var currentIndex = 0;
-  while (currentIndex < cardDeck.length) {
+  for (var currentIndex = 0; currentIndex < cardDeck.length; currentIndex++) {
     var randomIndex = getRandomIndex(cardDeck.length);
-    var randomCard = cardDeck[randomIndex];
-    var currentCard = cardDeck[currentIndex];
-    cardDeck[currentIndex] = randomCard;
-    cardDeck[randomIndex] = currentCard;
-    currentIndex = currentIndex + 1;
+    [cardDeck[currentIndex], cardDeck[randomIndex]] = [
+      cardDeck[randomIndex],
+      cardDeck[currentIndex],
+    ];
   }
   return cardDeck;
 };
@@ -58,13 +73,13 @@ var shuffleCards = function (cardDeck) {
 //Combing my Deck and Card shuffling function into a Shuffled Deck
 var makeShuffledDeck = function () {
   var unShuffledDeck = makeDeck();
+  console.log(unShuffledDeck);
   var shuffledDeck = shuffleCards(unShuffledDeck);
   return shuffledDeck;
 };
 
-//Initial 2 cards dealth to both Computer and Player
+//Initial 2 cards dealt to both Computer and Player
 var dealCards = function () {
-  var cardCounter = 0;
   var shuffledDeck = makeShuffledDeck();
   while (cardCounter < 2) {
     var computerCard = shuffledDeck.pop();
@@ -91,9 +106,14 @@ var dealCards = function () {
   return myOutputValue;
 };
 
+// var hitPlayer = function () {
+//   console.log(`this works`);
+// };
+
 var main = function (input) {
   makeShuffledDeck();
   dealCards();
+  console.log(shuffleCards());
   console.log(`computers cards are`, computerCards);
   console.log(`players cards are,`, playerCards);
   return myOutputValue;
