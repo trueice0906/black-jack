@@ -35,26 +35,6 @@ var makeDeck = function () {
       cardDeck.push(card);
     }
   }
-  console.log(cardDeck);
-  return cardDeck;
-};
-var shuffleCards = function (cardDeck) {
-  // Loop over the card deck array once
-  var currentIndex = 0;
-  while (currentIndex < cardDeck.length) {
-    // Select a random index in the deck
-    var randomIndex = getRandomIndex(cardDeck.length);
-    // Select the card that corresponds to randomIndex
-    var randomCard = cardDeck[randomIndex];
-    // Select the card that corresponds to currentIndex
-    var currentCard = cardDeck[currentIndex];
-    // Swap positions of randomCard and currentCard in the deck
-    cardDeck[currentIndex] = randomCard;
-    cardDeck[randomIndex] = currentCard;
-    // Increment currentIndex
-    currentIndex = currentIndex + 1;
-  }
-  // Return the shuffled deck
   return cardDeck;
 };
 
@@ -73,8 +53,8 @@ var shuffleCards = function (cardDeck) {
 //Combing my Deck and Card shuffling function into a Shuffled Deck
 var makeShuffledDeck = function () {
   var unShuffledDeck = makeDeck();
-  console.log(unShuffledDeck);
   var shuffledDeck = shuffleCards(unShuffledDeck);
+  console.log(shuffledDeck);
   return shuffledDeck;
 };
 
@@ -111,9 +91,7 @@ var dealCards = function () {
 // };
 
 var main = function (input) {
-  makeShuffledDeck();
   dealCards();
-  console.log(shuffleCards());
   console.log(`computers cards are`, computerCards);
   console.log(`players cards are,`, playerCards);
   return myOutputValue;
