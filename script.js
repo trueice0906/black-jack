@@ -1,7 +1,7 @@
 //Global Variables
-var playerCards = [];
-var computerCards = [];
-var myOutputValue = ``;
+var playerHand = [];
+var computerHand = [];
+var myOutputValue = "";
 var cardCounter = 0;
 var convert = {
   1: "Ace",
@@ -9,6 +9,9 @@ var convert = {
   12: "Queen",
   13: "King",
 };
+var shuffledDeck = [];
+var computerTotalPoints = 0;
+var playerTotalPoints = 0;
 
 //Helper Functions
 // Randomizing function ranging from 0 to max
@@ -24,13 +27,18 @@ var makeDeck = function () {
     var currentSuit = suits[suitIndex];
     for (var rankCounter = 1; rankCounter <= 13; rankCounter++) {
       var cardName = rankCounter;
+      var cardValue = rankCounter;
       if (convert[rankCounter] != null) {
         cardName = convert[rankCounter];
+      }
+      if (rankCounter > 10) {
+        cardValue = 10;
       }
       var card = {
         name: cardName,
         suit: currentSuit,
         rank: rankCounter,
+        value: cardValue,
       };
       cardDeck.push(card);
     }
@@ -60,39 +68,127 @@ var makeShuffledDeck = function () {
 
 //Initial 2 cards dealt to both Computer and Player
 var dealCards = function () {
-  var shuffledDeck = makeShuffledDeck();
+  shuffledDeck = makeShuffledDeck();
   while (cardCounter < 2) {
     var computerCard = shuffledDeck.pop();
     var playerCard = shuffledDeck.pop();
-    computerCards.push(computerCard);
-    playerCards.push(playerCard);
+    computerHand.push(computerCard);
+    playerHand.push(playerCard);
     cardCounter += 1;
   }
   myOutputValue = "Computer's cards are: <br>";
-  for (var i = 0; i < computerCards.length; i++) {
-    myOutputValue += computerCards[i].name + " of " + computerCards[i].suit;
-    if (i < computerCards.length - 1) {
-      //Delimiter for myOutputValue's `,`
+  for (var i = 0; i < computerHand.length; i++) {
+    myOutputValue += computerHand[i].name + " of " + computerHand[i].suit;
+    if (i < computerHand.length - 1) {
       myOutputValue += ", ";
     }
   }
   myOutputValue += "<br><br> Your cards are: <br>";
-  for (var i = 0; i < playerCards.length; i++) {
-    myOutputValue += playerCards[i].name + " of " + playerCards[i].suit;
-    if (i < playerCards.length - 1) {
+  for (var i = 0; i < playerHand.length; i++) {
+    myOutputValue += playerHand[i].name + " of " + playerHand[i].suit;
+    if (i < playerHand.length - 1) {
       myOutputValue += ", ";
     }
   }
   return myOutputValue;
 };
 
-// var hitPlayer = function () {
-//   console.log(`this works`);
-// };
+//Hits player with 1 card for every click
+var hitPlayer = function () {
+  myOutputValue = "<br>";
+  var i = shuffledDeck.pop();
+  playerHand.push(i);
+  console.log(playerHand);
+  myOutputValue += "Your cards are: <br>";
+  for (var i = 0; i < playerHand.length; i++) {
+    myOutputValue += playerHand[i].name + " of " + playerHand[i].suit;
+    if (i < playerHand.length - 1) {
+      myOutputValue += ", ";
+    }
+  }
+  console.log(calculateScores(playerHand));
+  return myOutputValue;
+};
+
+// Ace rank/values changes in different conditions
+var aceConditions = function (hand) {
+  for (var i = 0; i < hand.length; i++) {
+    if (hand[i].value == 1) {
+      if (hand.length == 2) {
+        hand[i].value = 11;
+      } else if (hand.length == 3) {
+        hand[i].value = 10;
+      } else if (hand.length >= 4) {
+        hand[i].value = 1;
+      }
+    }
+  }
+};
+
+//To calculate total points of player and computer
+var calculateScores = function () {
+  aceConditions(playerHand);
+  aceConditions(computerHand);
+  playerTotalPoints = 0;
+  computerTotalPoints = 0;
+  for (var i = 0; i < playerHand.length; i++) {
+    if (playerHand[i].value != null) {
+      playerTotalPoints += playerHand[i].value;
+    }
+  }
+  for (var i = 0; i < computerHand.length; i++) {
+    if (computerHand[i].value != null) {
+      computerTotalPoints += computerHand[i].value;
+    }
+  }
+  return {
+    playerTotalPoints,
+    computerTotalPoints,
+  };
+};
+
+//Happens in the event of "Natural-BANLUCK"
+var natural = function () {
+  calculateScores();
+  for (var i = 0; i < playerHand.length; i++) {
+    if ((playerHand[0].name && playerHand[1].name) == "Ace") {
+      myOutputValue = `SUPER-NATURAL! Player has 2 Ace`;
+    } else if (playerHand[i].name === "Ace" && playerTotalPoints >= 21) {
+      myOutputValue = `You've got a NATURAL! Your cards are, ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit}`;
+    }
+  }
+
+  for (var i = 0; i < computerHand.length; i++) {
+    if (computerHand[i].name === "Ace" && computerTotalPoints >= 21) {
+      myOutputValue = `Computer has gotten a NATURAL! Computer cards are ${computerHand[0].name} of ${computerHand[0].suit} and ${computerHand[1].name} of ${computerHand[1].suit}`;
+    }
+  }
+  return myOutputValue;
+};
+
+var computerDecision = function (computerHand, shuffledDeck) {
+  aceConditions(computerHand);
+  while (computerTotalPoints < 17) {
+    var computerCard = shuffledDeck.pop();
+    computerHand.push(computerCard);
+    aceConditions(computerHand);
+    calculateScores();
+  }
+};
 
 var main = function (input) {
-  dealCards();
-  console.log(`computers cards are`, computerCards);
-  console.log(`players cards are,`, playerCards);
+  if (cardCounter == 0) {
+    dealCards();
+    natural();
+    console.log(`computers cards are`, computerHand);
+    console.log(`players cards are,`, playerHand);
+    console.log(`scores are as:`, calculateScores(playerHand, computerHand));
+    cardCounter = 2;
+  } else if (cardCounter == 2 && input == "ready") {
+    computerDecision(computerHand, shuffledDeck);
+    console.log(`computers cards are`, computerHand);
+    console.log(`computers total points,`, computerTotalPoints);
+  }
+  console.log(cardCounter);
   return myOutputValue;
 };
