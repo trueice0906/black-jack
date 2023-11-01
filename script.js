@@ -113,7 +113,7 @@ var hitPlayer = function () {
 // Ace rank/values changes in different conditions
 var aceConditions = function (hand) {
   for (var i = 0; i < hand.length; i++) {
-    if (hand[i].value == 1) {
+    if (hand[i].value === 1) {
       if (hand.length == 2) {
         hand[i].value = 11;
       } else if (hand.length == 3) {
@@ -151,21 +151,22 @@ var calculateScores = function () {
 var natural = function () {
   calculateScores();
   for (var i = 0; i < playerHand.length; i++) {
-    if ((playerHand[0].name && playerHand[1].name) == "Ace") {
-      myOutputValue = `SUPER-NATURAL! Player has 2 Ace`;
+    if (playerHand[0].name === "Ace" && playerHand[1].name === "Ace") {
+      myOutputValue = `SUPER-NATURAL! <br><br> Player has 2 Ace <br><br> Computer cards are ${computerHand[0].name} of ${computerHand[0].suit} and ${computerHand[1].name} of ${computerHand[1].suit}`;
     } else if (playerHand[i].name === "Ace" && playerTotalPoints >= 21) {
-      myOutputValue = `You've got a NATURAL! Your cards are, ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit}`;
+      myOutputValue = `You've got a NATURAL!<br><br> Your cards are, ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit} <br><br> Computer cards are, ${computerHand[0].name} of ${computerHand[0].suit} and ${computerHand[1].name} of ${computerHand[1].suit}`;
     }
   }
 
   for (var i = 0; i < computerHand.length; i++) {
     if (computerHand[i].name === "Ace" && computerTotalPoints >= 21) {
-      myOutputValue = `Computer has gotten a NATURAL! Computer cards are ${computerHand[0].name} of ${computerHand[0].suit} and ${computerHand[1].name} of ${computerHand[1].suit}`;
+      myOutputValue = `Computer has gotten a NATURAL!<br><br> Computer cards are, ${computerHand[0].name} of ${computerHand[0].suit} and ${computerHand[1].name} of ${computerHand[1].suit} <br><br> Your cards are, ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit}`;
     }
   }
   return myOutputValue;
 };
 
+//Computer decision on whether to hit or stay, after player is 'ready'
 var computerDecision = function (computerHand, shuffledDeck) {
   aceConditions(computerHand);
   while (computerTotalPoints < 17) {
@@ -173,6 +174,49 @@ var computerDecision = function (computerHand, shuffledDeck) {
     computerHand.push(computerCard);
     aceConditions(computerHand);
     calculateScores();
+  }
+};
+
+//Score comparing function - winLoseDraw
+//Scenario - 1) player is 21 n under, less than comp due to comp explode
+var winLoseDraw = function () {
+  var winLoseMessagePlayer = "Your cards are: <br>";
+  var winLoseMessageComputer = "Computer's cards are: <br>";
+
+  for (var i = 0; i < playerHand.length; i++) {
+    winLoseMessagePlayer += playerHand[i].name + " of " + playerHand[i].suit;
+    if (i < playerHand.length - 1) {
+      winLoseMessagePlayer += ", ";
+    }
+  }
+
+  for (var i = 0; i < computerHand.length; i++) {
+    winLoseMessageComputer +=
+      computerHand[i].name + " of " + computerHand[i].suit;
+    if (i < computerHand.length - 1) {
+      winLoseMessageComputer += ", ";
+    }
+  }
+
+  if (playerTotalPoints <= 21 && playerTotalPoints > computerTotalPoints) {
+    myOutputValue = `Player has ${playerTotalPoints} and wins. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
+  } else if (
+    computerTotalPoints <= 21 &&
+    computerTotalPoints > playerTotalPoints
+  ) {
+    myOutputValue = `Computer has ${computerTotalPoints} and wins. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
+  } else if (
+    playerTotalPoints <= 21 &&
+    computerTotalPoints <= 21 &&
+    playerTotalPoints === computerTotalPoints
+  ) {
+    myOutputValue = `It's a draw! Both have ${playerTotalPoints} points. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
+  } else if (playerTotalPoints > 21 && computerTotalPoints <= 21) {
+    myOutputValue = `Player explode! Computer wins.<br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer} `;
+  } else if (computerTotalPoints > 21 && playerTotalPoints <= 21) {
+    myOutputValue = `Computer explode! Player wins. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
+  } else if (playerTotalPoints > 21 && computerTotalPoints > 21) {
+    myOutputValue = `Both bust, it's a draw!! <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
   }
 };
 
@@ -186,6 +230,7 @@ var main = function (input) {
     cardCounter = 2;
   } else if (cardCounter == 2 && input == "ready") {
     computerDecision(computerHand, shuffledDeck);
+    winLoseDraw();
     console.log(`computers cards are`, computerHand);
     console.log(`computers total points,`, computerTotalPoints);
   }
