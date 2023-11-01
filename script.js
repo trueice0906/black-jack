@@ -12,6 +12,9 @@ var convert = {
 var shuffledDeck = [];
 var computerTotalPoints = 0;
 var playerTotalPoints = 0;
+var winLoseMessagePlayer = "";
+var winLoseMessageComputer = "";
+var amountOfDolla = 100;
 
 //Helper Functions
 // Randomizing function ranging from 0 to max
@@ -177,11 +180,9 @@ var computerDecision = function (computerHand, shuffledDeck) {
   }
 };
 
-//Score comparing function - winLoseDraw
-//Scenario - 1) player is 21 n under, less than comp due to comp explode
-var winLoseDraw = function () {
-  var winLoseMessagePlayer = "Your cards are: <br>";
-  var winLoseMessageComputer = "Computer's cards are: <br>";
+var winloseMessage = function () {
+  winLoseMessagePlayer = "Your cards are: <br>";
+  winLoseMessageComputer = "Computer's cards are: <br>";
 
   for (var i = 0; i < playerHand.length; i++) {
     winLoseMessagePlayer += playerHand[i].name + " of " + playerHand[i].suit;
@@ -197,6 +198,12 @@ var winLoseDraw = function () {
       winLoseMessageComputer += ", ";
     }
   }
+};
+
+//Score comparing function - winLoseDraw + winloseMessage for both sides
+//Scenario - 1) player is 21 n under, less than comp due to comp explode
+var winLoseDraw = function () {
+  winloseMessage();
 
   if (playerTotalPoints <= 21 && playerTotalPoints > computerTotalPoints) {
     myOutputValue = `Player has ${playerTotalPoints} and wins. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
@@ -211,10 +218,6 @@ var winLoseDraw = function () {
     playerTotalPoints === computerTotalPoints
   ) {
     myOutputValue = `It's a draw! Both have ${playerTotalPoints} points. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
-  } else if (playerTotalPoints > 21 && computerTotalPoints <= 21) {
-    myOutputValue = `Player explode! Computer wins.<br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer} `;
-  } else if (computerTotalPoints > 21 && playerTotalPoints <= 21) {
-    myOutputValue = `Computer explode! Player wins. <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
   } else if (playerTotalPoints > 21 && computerTotalPoints > 21) {
     myOutputValue = `Both bust, it's a draw!! <br><br> ${winLoseMessagePlayer} <br><br> ${winLoseMessageComputer}`;
   }
@@ -228,6 +231,7 @@ var main = function (input) {
     console.log(`players cards are,`, playerHand);
     console.log(`scores are as:`, calculateScores(playerHand, computerHand));
     cardCounter = 2;
+    console.log(`amount of dolla,`, amountOfDolla);
   } else if (cardCounter == 2 && input == "ready") {
     computerDecision(computerHand, shuffledDeck);
     winLoseDraw();
